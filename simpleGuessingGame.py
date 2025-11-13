@@ -36,7 +36,6 @@ def playGame():
         guess = input("\nEnter your guess: ").strip()
         attempts += 1
         
-        # Validate numeric input
         try:
             guess = int(guess)
         except ValueError:
@@ -44,13 +43,11 @@ def playGame():
             time.sleep(1)
             continue
         
-        # Check bounds
         if guess < 1 or guess > difficulty:
             print(Colors.RED + f"\nOut of bounds! Please guess between 1 and {difficulty}." + Colors.RESET)
             time.sleep(1)
             continue
 
-        # Guess logic
         if guess < randomNumber:
             print("\nToo low! Try again.")
         elif guess > randomNumber:
@@ -59,25 +56,28 @@ def playGame():
             print(f"\n🎉 Congratulations! You guessed the number {randomNumber} in {attempts} attempts.")
             player_name = input("Enter your name: ").strip() or "Anonymous"
 
-            # Select leaderboard file based on difficulty
+            # ✅ Use raw strings (r"...") or forward slashes for Windows paths
+            base_path = r"C:\Users\anico\OneDrive\Desktop\GithubProjects\Simple-Guessing-Game"
             if difficulty == 10:
-                leaderboard_file = 'Results_Easy.txt'
+                leaderboard_file = os.path.join(base_path, "Results_Easy.txt")
             elif difficulty == 50:
-                leaderboard_file = 'Results_Medium.txt'
+                leaderboard_file = os.path.join(base_path, "Results_Medium.txt")
             else:
-                leaderboard_file = 'Results_Hard.txt'
+                leaderboard_file = os.path.join(base_path, "Results_Hard.txt")
 
             leaderboard = []
 
             # Load existing leaderboard
             if os.path.exists(leaderboard_file):
-                with open(leaderboard_file, 'r') as file:
+                with open(leaderboard_file, 'r', encoding='utf-8') as file:
                     lines = file.readlines()
                     for line in lines[1:]:  # skip "LEADERBOARD:"
                         line = line.strip()
                         if line:
-                            name, tries = line.split(',')
-                            leaderboard.append((name, int(tries)))
+                            parts = line.split(',')
+                            if len(parts) == 2:
+                                name, tries = parts
+                                leaderboard.append((name, int(tries)))
 
             # Add and sort results
             leaderboard.append((player_name, attempts))
@@ -85,7 +85,7 @@ def playGame():
             leaderboard = leaderboard[:5]
 
             # Write updated leaderboard
-            with open(leaderboard_file, 'w') as file:
+            with open(leaderboard_file, 'w', encoding='utf-8') as file:
                 file.write("LEADERBOARD:\n")
                 for name, tries in leaderboard:
                     file.write(f"{name},{tries}\n")
